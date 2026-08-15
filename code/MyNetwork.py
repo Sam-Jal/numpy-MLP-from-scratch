@@ -1,5 +1,4 @@
 import numpy as np
-import time as time
 import random
 
 class Network:
@@ -17,11 +16,8 @@ class Network:
         z = initZ(self.layers)
         activation = initActivation(self.layers)
         activation[0] = x
-        z[0] = np.dot(self.weights[0], x) + self.biases[0]
-        activation[1] = sigmoid(z[0])
 
         for k in range(self.numLayers-1):
-            #I have to calculate the output activation in this loop
             z[k] = np.dot(self.weights[k], activation[k]) + self.biases[k]
             activation[k+1] = sigmoid(z[k])
 
@@ -80,8 +76,10 @@ class Network:
                 nabla_b = [nb + dnb for nb, dnb in zip(nabla_b, nablaList[1])]
                 nabla_w = [nw + dnw for nw, dnw in zip(nabla_w, nablaList[0])]
             
-            nabla_b = [nb/miniBatchSize for nb in nabla_b] 
-            nabla_w = [nw/miniBatchSize for nw in nabla_w]
+            # The final mini-batch may be smaller than miniBatchSize.
+            actual_batch_size = len(miniBatch)
+            nabla_b = [nb/actual_batch_size for nb in nabla_b]
+            nabla_w = [nw/actual_batch_size for nw in nabla_w]
 
             self.update_parameters(nabla_w, nabla_b, eta)
 
@@ -119,26 +117,26 @@ def initWeight(layers):
     return weights
 
 def initZ(layers):
-    Zs = [np.random.randn(z,1) for z in layers[1:]] #note that it should be [] to become a list, otherwise it becomes a generator (?)
+    Zs = [np.zeros((z, 1)) for z in layers[1:]]
     return Zs
 
 def initActivation(layers):
-    activations = [np.random.randn(a,1) for a in layers[:]] #note that it should be [] to become a list, otherwise it becomes a generator (?)
+    activations = [np.zeros((a, 1)) for a in layers]
     return activations
 
 def sigmoid(z):
     return 1/(1 + np.exp(-z))
 
 def initNabla_w(layers):
-    nabla_w = [np.random.randn(n,m) for m,n in zip(layers[:-1], layers[1:])]
+    nabla_w = [np.zeros((n, m)) for m, n in zip(layers[:-1], layers[1:])]
     return nabla_w
 
 def initNabla_b(layers):
-    nabla_b = [np.random.randn(b,1) for b in layers[1:]] #note that it should be [] to become a list, otherwise it becomes a generator (?)
+    nabla_b = [np.zeros((b, 1)) for b in layers[1:]]
     return nabla_b
 
 def initDelta(layers):
-    delta = [np.random.randn(b,1) for b in layers[1:]] #note that it should be [] to become a list, otherwise it becomes a generator (?)
+    delta = [np.zeros((b, 1)) for b in layers[1:]]
     return delta
 
 def calcLastLayer(activation, y, z):
